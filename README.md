@@ -13,3 +13,6 @@ Create a program, making use of Open Source Libraries, to build a CrossWord Puzz
 4. from the data of the database, will draw the cells for a crossword puzzle
 5. Draw the crossword puzzle live, as the user adds their own Answers and Clues, until user exits the program.
 6. The crossword cells overlap perpendicular, at points of shared characters.
+
+
+![image](https://github.com/DaylanDStoica/CPSC254-CrosswordProject/assets/56146054/c59d4569-855e-4dbc-94ea-b9a70f6b9c68)
