@@ -21,8 +21,18 @@ If a created answer has no matching characters to existing words, it will placed
 
 
 
+
 ## Ideas:
 
 only the answers and clues are stored, and the puzzle is visually recreated at time of puzzle program opening.
 
 name the files as the time of creation to differentiate and sort them.
+
+Words cross over two different words.
+
+Transfer to a Word Search game.
+
+
+## OS Implementations:
+1. Linux, Ubuntu
+   
