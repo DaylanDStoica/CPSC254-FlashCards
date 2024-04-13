@@ -1,13 +1,13 @@
 # Details for the project for group colloborators!
 
 ## Languages, and their uses:
-C++ for logic of puzzle input and puzzle creation.
+C++ for logic of puzzle input and puzzle creation. (Daylan and DMcQ, Dylan)
 
-Java for GUI of the puzzle
+Java for GUI of the puzzle (DMCq, Tesla)
 
 Java or C++ for connection to MySQL
 
-MySQL for data storage and retrieval
+MySQL for data storage and retrieval (Daylan)
 
 
 
@@ -22,6 +22,7 @@ If a created answer has no matching characters to existing words, it will placed
 
 
 
+
 ## Ideas:
 
 only the answers and clues are stored, and the puzzle is visually recreated at time of puzzle program opening.
@@ -29,6 +30,11 @@ only the answers and clues are stored, and the puzzle is visually recreated at t
 name the files as the time of creation to differentiate and sort them.
 
 Words cross over two different words.
+
+During program execution, save data to a local file, and at user's closing, would send file to server.
+   save to a local file, and periodically send data to server.
+
+
 
 Transfer to a Word Search game.
 
