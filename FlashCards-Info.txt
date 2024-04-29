@@ -1,0 +1,22 @@
+FlashCards Java GUI Information:
+================================
+
+Java Swing GUI Program Name:
+----------------------------
+FlashCards.java
+
+To verify if Java Runtime present on your machine:
+--------------------------------------------------
+java --version
+
+To verify if Java Compiler present on your machine:
+---------------------------------------------------
+javac --version
+
+To Compile the FlashCards Java GUI program:
+---------------------------------------
+javac FlashCards.java
+
+To Run the FlashCards Java GUI program:
+---------------------------------------
+java -cp .; FlashCards
