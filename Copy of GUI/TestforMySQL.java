@@ -7,9 +7,9 @@ import java.sql.Statement;
 public class Main {
     public static void main(String[] args) {
         // Database connection details
-        String url = "jdbc:mysql://localhost:3306/mydatabase?useSSL=false";
-        String username = "root";
-        String password = "yourpassword";
+        String url = "jdbc:mysql://localhost:3306/FlashCards";
+        String username = "FlashCards-Programmer";
+        String password = "X$18joanri";
 
         // Try-with-resources statement to manage resources
         try (Connection conn = DriverManager.getConnection(url, username, password);
