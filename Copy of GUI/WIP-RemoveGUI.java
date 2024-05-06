@@ -25,9 +25,9 @@ public class FlashCards extends JFrame
         public static Connection getConnection() {
             if (conn == null) {
                 try {
-                    String url = "jdbc:mysql://localhost:3306/yourDatabaseName";
-                    String user = "yourUsername";
-                    String password = "yourPassword";
+                    String url = "jdbc:mysql://localhost:3306/FlashCards";
+                    String user = "FlashCards-Programmer";
+                    String password = "X$18joanri";
                     conn = DriverManager.getConnection(url, user, password);
                 } catch (SQLException e) {
                     e.printStackTrace();
