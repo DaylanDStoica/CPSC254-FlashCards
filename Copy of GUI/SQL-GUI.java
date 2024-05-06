@@ -17,6 +17,28 @@ import java.sql.SQLException;
 // Main Class file for FlashCards
 public class FlashCards extends JFrame
 {
+        // Nested DatabaseConnector
+        private static class DatabaseConnector {
+            private static Connection conn = null;
+
+            public static Connection getConnection() {
+                if (conn == null) {
+                    try {
+                        String url = "jdbc:mysql://localhost:3306/FlashCards";
+                        String user = "FlashCards-Programmer";
+                        String password = "X$18joanri";
+                        conn = DriverManager.getConnection(url, user, password);
+                    } catch (SQLException e) {
+                        e.printStackTrace();
+                    }
+                }
+                return conn;
+            }
+        }
+
+        // FlashCards methods and fields continue here...
+
+
     // To identify OS
     static String OSName = System.getProperties().getProperty("os.name");
     // To identify file separator for paths
@@ -103,20 +125,17 @@ public class FlashCards extends JFrame
             }
 
             // Add to the database
-            String url = "jdbc:mysql://localhost:3306/FlashCards";
-            String username = "FlashCards-Programmer";
-            String password = "X$18joanri";
-            String sql = "INSERT INTO flashcards (question, answer) VALUES (?, ?)";
-
-            try (Connection conn = DriverManager.getConnection(url, username, password);
-                 PreparedStatement pstmt = conn.prepareStatement(sql)) {
+            Connection conn = DatabaseConnector.getConnection();
+            String sql = "INSERT INTO flashcards (question, answer) VALUES (?, ?);";
+            try (PreparedStatement pstmt = conn.prepareStatement(sql)) {
                 pstmt.setString(1, question);
                 pstmt.setString(2, answer);
-                pstmt.executeUpdate();
+                int affectedRows = pstmt.executeUpdate();
+                if (affectedRows > 0) {
+                    System.out.println("Record added successfully to the database.");
+                }
             } catch (SQLException ex) {
                 ex.printStackTrace();
-                JOptionPane.showMessageDialog(null, "Failed to add flashcard to database.", "Database Error", JOptionPane.ERROR_MESSAGE);
-                return;
             }
 
             // Add Question and Answer to the lists and update GUI
@@ -133,41 +152,53 @@ public class FlashCards extends JFrame
     //// Action Listener for Removing entries from the List
     ActionListener alRemoveFromPuzzle = new ActionListener() {
         public void actionPerformed(ActionEvent e) {
-            int listSelection = -1;
-            String listEntry = "";
-            int userResponse = -1;
+            int listSelection = JLSTFlashCardList.getSelectedIndex();
+            if (listSelection >= 0) {
+                String listEntry = flashCardListModel.getElementAt(listSelection).toString();
+                String[] parts = listEntry.split(" = ");
+                String answer = parts[0];
+                String question = parts.length > 1 ? parts[1] : "";
 
-            listSelection = JLSTFlashCardList.getSelectedIndex();
-            if (listSelection >= 0)
-            {
-                listEntry = answerList.get(listSelection);
-                userResponse = JOptionPane.showConfirmDialog(null,
-                        "Remove entry '" + listEntry + "' from Deck ?",
+                int userResponse = JOptionPane.showConfirmDialog(null,
+                        "Remove entry '" + listEntry + "' from Deck?",
                         "Message",
                         JOptionPane.YES_NO_OPTION);
 
-                if (userResponse == 0)
-                {
-                    // remove entry
-                    answerList.remove(listSelection);
-                    questionList.remove(listSelection);
-                    flashCardListModel.removeElementAt(listSelection);
+                if (userResponse == JOptionPane.YES_OPTION) {
+                    // Database removal
+                    Connection conn = DatabaseConnector.getConnection();
+                    String sql = "DELETE FROM flashcards WHERE question = ? OR answer = ?;";
+                    try (PreparedStatement pstmt = conn.prepareStatement(sql)) {
+                        pstmt.setString(1, question);
+                        pstmt.setString(2, answer);
+                        int affectedRows = pstmt.executeUpdate();
+                        if (affectedRows > 0) {
+                            System.out.println("Entry removed from database successfully.");
+                            // remove entry from memory and GUI
+                            answerList.remove(listSelection);
+                            questionList.remove(listSelection);
+                            flashCardListModel.removeElementAt(listSelection);
+                        } else {
+                            JOptionPane.showMessageDialog(null,
+                                    "Entry not found in the database.",
+                                    "Error",
+                                    JOptionPane.ERROR_MESSAGE);
+                        }
+                    } catch (SQLException ex) {
+                        ex.printStackTrace();
+                    }
+                } else if (userResponse == JOptionPane.NO_OPTION) {
+                    // No action needed
                 }
-                if (userResponse == 1)
-                {
-                    // No
-                }
-            }
-            else
-            {
+            } else {
                 JOptionPane.showMessageDialog(null,
                         "Select an entry from 'Answers and Questions' list.",
                         "Message",
                         JOptionPane.ERROR_MESSAGE);
-                return;
             }
         }
     };
+
 
     //// to save the Deck entries to a Text file
     void saveDeckToFile()
