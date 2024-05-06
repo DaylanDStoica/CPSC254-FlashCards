@@ -17,6 +17,47 @@ import java.sql.SQLException;
 // Main Class file for FlashCards
 public class FlashCards extends JFrame
 {
+    public class FlashCards {
+    // Nested DatabaseConnector
+    private static class DatabaseConnector {
+        private static Connection conn = null;
+
+        public static Connection getConnection() {
+            if (conn == null) {
+                try {
+                    String url = "jdbc:mysql://localhost:3306/yourDatabaseName";
+                    String user = "yourUsername";
+                    String password = "yourPassword";
+                    conn = DriverManager.getConnection(url, user, password);
+                } catch (SQLException e) {
+                    e.printStackTrace();
+                }
+            }
+            return conn;
+        }
+    }
+
+    // FlashCards methods and fields continue here...
+}
+
+    private static class DatabaseConnector {
+        private static Connection conn = null;
+
+        public static Connection getConnection() {
+            if (conn == null) {
+                try {
+                    String url = "jdbc:mysql://localhost:3306/yourDatabaseName";
+                    String user = "yourUsername";
+                    String password = "yourPassword";
+                    conn = DriverManager.getConnection(url, user, password);
+                } catch (SQLException e) {
+                    e.printStackTrace();
+                }
+            }
+            return conn;
+        }
+    }
+
     // To identify OS
     static String OSName = System.getProperties().getProperty("os.name");
     // To identify file separator for paths
