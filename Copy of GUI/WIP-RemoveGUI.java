@@ -40,24 +40,6 @@ public class FlashCards extends JFrame
     // FlashCards methods and fields continue here...
 }
 
-    private static class DatabaseConnector {
-        private static Connection conn = null;
-
-        public static Connection getConnection() {
-            if (conn == null) {
-                try {
-                    String url = "jdbc:mysql://localhost:3306/yourDatabaseName";
-                    String user = "yourUsername";
-                    String password = "yourPassword";
-                    conn = DriverManager.getConnection(url, user, password);
-                } catch (SQLException e) {
-                    e.printStackTrace();
-                }
-            }
-            return conn;
-        }
-    }
-
     // To identify OS
     static String OSName = System.getProperties().getProperty("os.name");
     // To identify file separator for paths
@@ -144,20 +126,17 @@ public class FlashCards extends JFrame
             }
 
             // Add to the database
-            String url = "jdbc:mysql://localhost:3306/FlashCards";
-            String username = "FlashCards-Programmer";
-            String password = "X$18joanri";
-            String sql = "INSERT INTO flashcards (question, answer) VALUES (?, ?)";
-
-            try (Connection conn = DriverManager.getConnection(url, username, password);
-                 PreparedStatement pstmt = conn.prepareStatement(sql)) {
+            Connection conn = DatabaseConnector.getConnection();
+            String sql = "INSERT INTO flashcards (question, answer) VALUES (?, ?);";
+            try (PreparedStatement pstmt = conn.prepareStatement(sql)) {
                 pstmt.setString(1, question);
                 pstmt.setString(2, answer);
-                pstmt.executeUpdate();
-            } catch (SQLException ex) {
+                int affectedRows = pstmt.executeUpdate();
+                if (affectedRows > 0) {
+                    System.out.println("Record added successfully to the database.");
+                }
+                } catch (SQLException ex) {
                 ex.printStackTrace();
-                JOptionPane.showMessageDialog(null, "Failed to add flashcard to database.", "Database Error", JOptionPane.ERROR_MESSAGE);
-                return;
             }
 
             // Add Question and Answer to the lists and update GUI
