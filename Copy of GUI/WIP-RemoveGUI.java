@@ -151,43 +151,55 @@ public class FlashCards extends JFrame
     };
 
     //// Action Listener for Removing entries from the List
-    ActionListener alRemoveFromPuzzle = new ActionListener() {
-        public void actionPerformed(ActionEvent e) {
-            int listSelection = -1;
-            String listEntry = "";
-            int userResponse = -1;
+ActionListener alRemoveFromPuzzle = new ActionListener() {
+    public void actionPerformed(ActionEvent e) {
+        int listSelection = JLSTFlashCardList.getSelectedIndex();
+        if (listSelection >= 0) {
+            String listEntry = flashCardListModel.getElementAt(listSelection).toString();
+            String[] parts = listEntry.split(" = ");
+            String answer = parts[0];
+            String question = parts.length > 1 ? parts[1] : "";
 
-            listSelection = JLSTFlashCardList.getSelectedIndex();
-            if (listSelection >= 0)
-            {
-                listEntry = answerList.get(listSelection);
-                userResponse = JOptionPane.showConfirmDialog(null,
-                        "Remove entry '" + listEntry + "' from Deck ?",
-                        "Message",
-                        JOptionPane.YES_NO_OPTION);
+            int userResponse = JOptionPane.showConfirmDialog(null,
+                    "Remove entry '" + listEntry + "' from Deck?",
+                    "Message",
+                    JOptionPane.YES_NO_OPTION);
 
-                if (userResponse == 0)
-                {
-                    // remove entry
-                    answerList.remove(listSelection);
-                    questionList.remove(listSelection);
-                    flashCardListModel.removeElementAt(listSelection);
+            if (userResponse == JOptionPane.YES_OPTION) {
+                // Database removal
+                Connection conn = DatabaseConnector.getConnection();
+                String sql = "DELETE FROM flashcards WHERE question = ? OR answer = ?;";
+                try (PreparedStatement pstmt = conn.prepareStatement(sql)) {
+                    pstmt.setString(1, question);
+                    pstmt.setString(2, answer);
+                    int affectedRows = pstmt.executeUpdate();
+                    if (affectedRows > 0) {
+                        System.out.println("Entry removed from database successfully.");
+                        // remove entry from memory and GUI
+                        answerList.remove(listSelection);
+                        questionList.remove(listSelection);
+                        flashCardListModel.removeElementAt(listSelection);
+                    } else {
+                        JOptionPane.showMessageDialog(null,
+                                "Entry not found in the database.",
+                                "Error",
+                                JOptionPane.ERROR_MESSAGE);
+                    }
+                } catch (SQLException ex) {
+                    ex.printStackTrace();
                 }
-                if (userResponse == 1)
-                {
-                    // No
-                }
+            } else if (userResponse == JOptionPane.NO_OPTION) {
+                // No action needed
             }
-            else
-            {
-                JOptionPane.showMessageDialog(null,
-                        "Select an entry from 'Answers and Questions' list.",
-                        "Message",
-                        JOptionPane.ERROR_MESSAGE);
-                return;
-            }
+        } else {
+            JOptionPane.showMessageDialog(null,
+                    "Select an entry from 'Answers and Questions' list.",
+                    "Message",
+                    JOptionPane.ERROR_MESSAGE);
         }
-    };
+    }
+};
+
 
     //// to save the Deck entries to a Text file
     void saveDeckToFile()
