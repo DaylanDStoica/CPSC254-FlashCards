@@ -15,27 +15,6 @@ import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 // Main Class file for FlashCards
-
-public class DatabaseConnector {
-    private static Connection conn = null;
-
-    public static Connection getConnection() {
-        if (conn == null) {
-            try {
-                // Change these details according to your database configuration
-                String url = "jdbc:mysql://localhost:3306/yourDatabaseName";
-                String user = "yourUsername";
-                String password = "yourPassword";
-                conn = DriverManager.getConnection(url, user, password);
-                System.out.println("Connected to the database successfully.");
-            } catch (SQLException e) {
-                System.out.println("SQL Exception: " + e.getMessage());
-                e.printStackTrace();
-            }
-        }
-        return conn;
-    }
-}
 public class FlashCards extends JFrame
 {
     // To identify OS
@@ -152,49 +131,43 @@ public class FlashCards extends JFrame
     };
 
     //// Action Listener for Removing entries from the List
-//// Action Listener for Removing entries from the List
-ActionListener alRemoveFromPuzzle = new ActionListener() {
-    public void actionPerformed(ActionEvent e) {
-        int listSelection = JLSTFlashCardList.getSelectedIndex();
-        if (listSelection >= 0) {
-            String listEntry = flashCardListModel.getElementAt(listSelection).toString();
-            String[] parts = listEntry.split(" = ");
-            String questionToDelete = parts[1];  // assuming question is after "="
+    ActionListener alRemoveFromPuzzle = new ActionListener() {
+        public void actionPerformed(ActionEvent e) {
+            int listSelection = -1;
+            String listEntry = "";
+            int userResponse = -1;
 
-            int userResponse = JOptionPane.showConfirmDialog(null,
-                    "Remove entry '" + listEntry + "' from Deck ?",
-                    "Message",
-                    JOptionPane.YES_NO_OPTION);
+            listSelection = JLSTFlashCardList.getSelectedIndex();
+            if (listSelection >= 0)
+            {
+                listEntry = answerList.get(listSelection);
+                userResponse = JOptionPane.showConfirmDialog(null,
+                        "Remove entry '" + listEntry + "' from Deck ?",
+                        "Message",
+                        JOptionPane.YES_NO_OPTION);
 
-            if (userResponse == JOptionPane.YES_OPTION) {
-                // Establish database connection
-                Connection conn = DatabaseConnector.getConnection();
-                String sql = "DELETE FROM flashcards WHERE question = ?;";
-                try (PreparedStatement pstmt = conn.prepareStatement(sql)) {
-                    pstmt.setString(1, questionToDelete);
-                    int affectedRows = pstmt.executeUpdate();
-                    if (affectedRows > 0) {
-                        System.out.println("Record deleted successfully from the database.");
-                        answerList.remove(listSelection);
-                        questionList.remove(listSelection);
-                        flashCardListModel.removeElementAt(listSelection);
-                    } else {
-                        System.out.println("No record found with question: " + questionToDelete);
-                    }
-                } catch (SQLException ex) {
-                    ex.printStackTrace();
+                if (userResponse == 0)
+                {
+                    // remove entry
+                    answerList.remove(listSelection);
+                    questionList.remove(listSelection);
+                    flashCardListModel.removeElementAt(listSelection);
+                }
+                if (userResponse == 1)
+                {
+                    // No
                 }
             }
-        } else {
-            JOptionPane.showMessageDialog(null,
-                    "Select an entry from 'Answers and Questions' list.",
-                    "Message",
-                    JOptionPane.ERROR_MESSAGE);
+            else
+            {
+                JOptionPane.showMessageDialog(null,
+                        "Select an entry from 'Answers and Questions' list.",
+                        "Message",
+                        JOptionPane.ERROR_MESSAGE);
+                return;
+            }
         }
-    }
-};
-
-
+    };
 
     //// to save the Deck entries to a Text file
     void saveDeckToFile()
