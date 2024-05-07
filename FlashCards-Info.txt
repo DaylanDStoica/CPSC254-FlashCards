@@ -1,0 +1,55 @@
+Flash Cards Java GUI Information:
+================================
+This program will work in Linux and Windows operating system where there is a Java runtime available. 
+This program is compiled with Java OpenJDK version 11.x. 
+
+
+To verify if Java Runtime present on your machine:
+--------------------------------------------------
+java --version
+
+To verify if Java Compiler present on your machine:
+---------------------------------------------------
+javac --version
+
+
+Program to create flashcards and store them in a deck file: 
+==========================================================
+FlashCards
+
+To compile this program in Linux: 
+---------------------------------
+javac FlashCards.java
+
+To run this program in Linux: 
+-----------------------------
+java -cp . FlashCards
+
+To compile this program in Windows: 
+-----------------------------------
+javac FlashCards.java
+
+To run this program in Windows: 
+--------------------------------
+java -cp .; FlashCards
+
+
+Program to play flashcards and store them in a deck file: 
+=========================================================
+FlashCardPlayer
+
+To compile this program in Linux: 
+--------------------------------
+javac FlashCardPlayer.java
+
+To run this program in Linux: 
+------------------------------
+java -cp . FlashCardPlayer
+
+To compile this program in Windows: 
+-----------------------------------
+javac FlashCardPlayer.java
+
+To run this program in Windows: 
+-------------------------------
+java -cp .; FlashCardPlayer
