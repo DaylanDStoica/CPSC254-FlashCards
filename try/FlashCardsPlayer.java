@@ -468,10 +468,10 @@ void loadDeckFile()
         //// for windows
         else if (OSName.startsWith("Win"))
         {
-            OSFs = "\\";
-            File fl1 = new File("");
-            appPath = fl1.getAbsolutePath();
+            OSFs = "\\";  // File separator for Windows, although you can also use File.separator for cross-platform compatibility
+            appPath = System.getProperty("user.home") + "\\Desktop\\";  // Directly setting the path to the Desktop
         }
+
         //// other OS
         else
         {
