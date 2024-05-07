@@ -125,37 +125,39 @@ public class FlashCardPlayer extends JFrame
     };
 
     //// Function to load all Deck Files (*.txt) from the App directory
-    public void LoadAllDecks() {
-        // Set the directory where the text files are stored
-        String appPath = "/home/josue/Downloads";
+public void LoadAllDecks() {
+    // Get the user's home directory and append the Desktop path
+    String userHome = System.getProperty("user.home");
+    String appPath = userHome + File.separator + "Desktop";
 
-        // File extension filter to select only .txt files
-        FilenameFilter ff = new FilenameFilter() {
-            public boolean accept(File dir, String name) {
-                return name.toLowerCase().endsWith(".txt");
-            }
-        };
-
-        // Directory file
-        File dir = new File(appPath);
-        String[] filteredFiles = {};
-
-        // Check if the directory exists and is a directory, then list files using the filter
-        if (dir.isDirectory()) {
-            filteredFiles = dir.list(ff);
+    // File extension filter to select only .txt files
+    FilenameFilter ff = new FilenameFilter() {
+        public boolean accept(File dir, String name) {
+            return name.toLowerCase().endsWith(".txt");
         }
+    };
 
-        // Clear previous entries in the model
-        deckModel.clear();
+    // Directory file
+    File dir = new File(appPath);
+    String[] filteredFiles = {};
 
-        // Iterate over filtered files and add them to the model
-        for (String fileName : filteredFiles) {
-            fileName = fileName.trim();
-            if (fileName.length() > 0) {
-                deckModel.addElement(fileName);
-            }
+    // Check if the directory exists and is a directory, then list files using the filter
+    if (dir.isDirectory()) {
+        filteredFiles = dir.list(ff);
+    }
+
+    // Clear previous entries in the model
+    deckModel.clear();
+
+    // Iterate over filtered files and add them to the model
+    for (String fileName : filteredFiles) {
+        fileName = fileName.trim();
+        if (fileName.length() > 0) {
+            deckModel.addElement(fileName);
         }
-    } // public void LoadAllDecks()
+    }
+}
+ // public void LoadAllDecks()
 
     // Function to show the Card
     void showCardInfo()
