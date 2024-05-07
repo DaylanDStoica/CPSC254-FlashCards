@@ -362,6 +362,7 @@ public class FlashCards extends JFrame
     // Functo to open and read a Deck file
 void loadDeckFile() {
     String deckFileName = "";
+    String data1 = "";
 
     deckFileName = JTXFDeckID.getText();
     if (deckFileName.length() <= 0) {
@@ -383,46 +384,70 @@ void loadDeckFile() {
             FileInputStream in = new FileInputStream(inputFile);
             byte bt[] = new byte[(int)inputFile.length()];
             in.read(bt);
-            String data1 = new String(bt);
+            data1 = new String(bt);
             in.close();
-
-            // Continue with processing the data as before
-            int overWrite = JOptionPane.showConfirmDialog(null,
-                    "Load File " + deckFileName + " contents ?",
-                    "Message",
-                    JOptionPane.YES_NO_OPTION);
-
-            if (overWrite == JOptionPane.NO_OPTION) {
-                return;
-            }
-
-            questionList.clear();
-            answerList.clear();
-            flashCardListModel.removeAllElements();
-
-            parseAndLoadData(data1, questionList, answerList, flashCardListModel);
         } else {
             JOptionPane.showMessageDialog(null,
                     "File " + deckFileName + " not found.",
                     "Message",
                     JOptionPane.ERROR_MESSAGE);
+            return;
         }
-    } catch (IOException e1) {
+    } catch(IOException e1) {
         JOptionPane.showMessageDialog(null,
                 "Failed to open and read file " + deckFileName +
                         e1.toString(),
                 "Message",
                 JOptionPane.ERROR_MESSAGE);
+        return;
+    }
+
+    // if file found and read, load data into list
+    int overWrite = JOptionPane.showConfirmDialog(null,
+            "Load File " + deckFileName + " contents ?",
+            "Message",
+            JOptionPane.YES_NO_OPTION);
+
+    if (overWrite == JOptionPane.NO_OPTION) {
+        return;
+    }
+
+    // clear existing values from components
+    questionList.clear();
+    answerList.clear();
+    flashCardListModel.removeAllElements();
+
+    // load data into components
+    int dataSize = data1.length();
+    String ans = "";
+    String qes = "";
+    char c1 = 0;
+    boolean dataFlag = false;
+
+    for (int i = 0; i < dataSize; i++) {
+        c1 = data1.charAt(i);
+
+        if (dataFlag) {
+            if (c1 == '\n') { // Assuming '\n' is your newline character
+                questionList.add(qes);
+                answerList.add(ans);
+                flashCardListModel.addElement(ans + " = " + qes);
+                ans = "";
+                qes = "";
+                dataFlag = false;
+            } else {
+                qes += c1;
+            }
+        } else {
+            if (c1 == '|') { // Assuming '|' is your data separator
+                dataFlag = true;
+            } else {
+                ans += c1;
+            }
+        }
     }
 }
- //  loadDeckFile(String pathAndfileName)
 
-    //// Action Listener for Loading the Deck file
-    ActionListener alLoadDeck = new ActionListener() {
-        public void actionPerformed(ActionEvent e) {
-            loadDeckFile();
-        }
-    };
 
     //// constructor
     public FlashCards() {
