@@ -283,7 +283,7 @@ public class FlashCards extends JFrame
         else
         {
             // set absolute path and file name (Store the text file in the App directory)
-            deckFileName = appPath + OSFs + deckFileName + ".txt";
+            deckFileName = "/home/josue/Downloads/" + deckFileName + ".txt";
         }
 
         // Verify if the file already exists or not
