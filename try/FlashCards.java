@@ -235,28 +235,7 @@ public class FlashCards extends JFrame
 					answerList.remove(listSelection);
 					questionList.remove(listSelection);
 					flashCardListModel.removeElementAt(listSelection);
-					                    // Database removal
-                    			Connection conn = DatabaseConnector.getConnection();
-                    			String sql = "DELETE FROM flashcards WHERE question = ? OR answer = ?;";
-                    			try (PreparedStatement pstmt = conn.prepareStatement(sql)) {
-                        			pstmt.setString(1, question);
-                        			pstmt.setString(2, answer);
-                        			int affectedRows = pstmt.executeUpdate();
-                        			if (affectedRows > 0) {
-                            			System.out.println("Entry removed from database successfully.");
-                            			// remove entry from memory and GUI
-                            			answerList.remove(listSelection);
-                            			questionList.remove(listSelection);
-                            			flashCardListModel.removeElementAt(listSelection);
-                        			} else {
-                            			JOptionPane.showMessageDialog(null,
-                                    			"Entry not found in the database.",
-                                    			"Error",
-                                    			JOptionPane.ERROR_MESSAGE);
-                        			}
-                    			} catch (SQLException ex) {
-                        			ex.printStackTrace();
-                    			}
+					 
 				}
 				if (userResponse == 1)
 				{
