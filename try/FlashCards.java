@@ -212,47 +212,67 @@ public class FlashCards extends JFrame
 			JTXFAnswer.setText("");
 		}
 	};
-	
-	//// Action Listener for Removing entries from the List
+	////////////
 	ActionListener alRemoveFromPuzzle = new ActionListener() {
-		public void actionPerformed(ActionEvent e) {
-			int listSelection = -1;
-			String listEntry = "";
-			int userResponse = -1;
+    	public void actionPerformed(ActionEvent e) {
+        	int listSelection = JLSTFlashCardList.getSelectedIndex();
+        	if (listSelection >= 0) {
+            	String listEntry = answerList.get(listSelection);
+            	int userResponse = JOptionPane.showConfirmDialog(null,
+                    	"Remove entry '" + listEntry + "' from Deck?",
+                    	"Message",
+                    	JOptionPane.YES_NO_OPTION);
 
-			listSelection = JLSTFlashCardList.getSelectedIndex();
-			if (listSelection >= 0)
-			{
-				listEntry = answerList.get(listSelection);				
-				userResponse = JOptionPane.showConfirmDialog(null,
-                      		"Remove entry '" + listEntry + "' from Deck ?",
-                      		"Message",
-                       		JOptionPane.YES_NO_OPTION);
-		
-				if (userResponse == 0)
-				{
-					// remove entry
-					answerList.remove(listSelection);
-					questionList.remove(listSelection);
-					flashCardListModel.removeElementAt(listSelection);
-					 
-				}
-				if (userResponse == 1)
-				{
-					// No
-				}
-			}
-			else
-			{
-				JOptionPane.showMessageDialog(null, 
-                                      "Select an entry from 'Answers and Questions' list.", 
-                                      "Message", 
-                                       JOptionPane.ERROR_MESSAGE);
-				return;				
-			}
-		}
+            	if (userResponse == JOptionPane.YES_OPTION) {
+                	Connection conn = null;
+                	try {
+                    	conn = DatabaseConnector.getConnection();
+                   	String question = questionList.get(listSelection);
+                    	String answer = answerList.get(listSelection);
+                    	String sql = "DELETE FROM flashcards WHERE question = ? OR answer = ?;";
+                    	try (PreparedStatement pstmt = conn.prepareStatement(sql)) {
+                        	pstmt.setString(1, question);
+                        	pstmt.setString(2, answer);
+                        	int affectedRows = pstmt.executeUpdate();
+                        	if (affectedRows > 0) {
+                            	System.out.println("Entry removed from database successfully.");
+                            	// Remove entry from memory and GUI
+                            	answerList.remove(listSelection);
+                            	questionList.remove(listSelection);
+                            	flashCardListModel.removeElementAt(listSelection);
+                        	} else {
+                            	JOptionPane.showMessageDialog(null,
+                                    	"Entry not found in the database.",
+                                    	"Error",
+                                    	JOptionPane.ERROR_MESSAGE);
+                        	}
+                    	}
+                	} catch (SQLException ex) {
+                   	JOptionPane.showMessageDialog(null,
+                            	"Failed to remove the entry from the database.",
+                            	"Database Error",
+                            	JOptionPane.ERROR_MESSAGE);
+                    	ex.printStackTrace();
+                	} finally {
+                    	if (conn != null) {
+                        	try {
+                            	conn.close();
+                        	} catch (SQLException ex) {
+                            	ex.printStackTrace();
+                        	}
+                    	}
+                	}
+            	}
+        	} else {
+            	JOptionPane.showMessageDialog(null,
+                    	"Select an entry from 'Answers and Questions' list.",
+                    	"Message",
+                    	JOptionPane.ERROR_MESSAGE);
+        	}
+    	}
 	};
 
+////////////
 	//// Function to save the Deck entries to a Text file
 	void saveDeckToFile()
 	{
