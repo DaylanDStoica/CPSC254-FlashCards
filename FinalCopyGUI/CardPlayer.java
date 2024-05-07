@@ -124,38 +124,40 @@ public class FlashCardPlayer extends JFrame
         }
     };
 
-    //// Function to load all Deck Files (*.txt) from the App directory
-    public void LoadAllDecks() {
-        // Set the directory where the text files are stored
-        String appPath = "/home/josue/Downloads/";
+    //// Function to load all Deck Files (*) from the App directory
+public void LoadAllDecks() {
+    // Get the user's home directory and append the Desktop path
+    String userHome = System.getProperty("user.home");
+    String appPath = userHome + File.separator + "Desktop";
 
-        // File extension filter to select only .txt files
-        FilenameFilter ff = new FilenameFilter() {
-            public boolean accept(File dir, String name) {
-                return name.toLowerCase().endsWith(".txt");
-            }
-        };
-
-        // Directory file
-        File dir = new File(appPath);
-        String[] filteredFiles = {};
-
-        // Check if the directory exists and is a directory, then list files using the filter
-        if (dir.isDirectory()) {
-            filteredFiles = dir.list(ff);
+    // File extension filter to select only  files
+    FilenameFilter ff = new FilenameFilter() {
+        public boolean accept(File dir, String name) {
+            return name.toLowerCase().endsWith("");
         }
+    };
 
-        // Clear previous entries in the model
-        deckModel.clear();
+    // Directory file
+    File dir = new File(appPath);
+    String[] filteredFiles = {};
 
-        // Iterate over filtered files and add them to the model
-        for (String fileName : filteredFiles) {
-            fileName = fileName.trim();
-            if (fileName.length() > 0) {
-                deckModel.addElement(fileName);
-            }
+    // Check if the directory exists and is a directory, then list files using the filter
+    if (dir.isDirectory()) {
+        filteredFiles = dir.list(ff);
+    }
+
+    // Clear previous entries in the model
+    deckModel.clear();
+
+    // Iterate over filtered files and add them to the model
+    for (String fileName : filteredFiles) {
+        fileName = fileName.trim();
+        if (fileName.length() > 0) {
+            deckModel.addElement(fileName);
         }
-    } // public void LoadAllDecks()
+    }
+}
+ // public void LoadAllDecks()
 
     // Function to show the Card
     void showCardInfo()
@@ -193,131 +195,127 @@ public class FlashCardPlayer extends JFrame
     } // void showCardInfo()
 
     // To open and read a Deck file
-    void loadDeckFile()
+void loadDeckFile()
+{
+    int listSelection = -1;
+    String deckFileName = "";
+    String data1 = "";
+
+    listSelection = JLSTDecks.getSelectedIndex();
+    if (listSelection >= 0)
     {
-        int listSelection = -1;
-        String data1 = "";
+        deckFileName = deckModel.get(listSelection);
+        deckFileName = deckFileName.trim();
+    }
 
-        listSelection = JLSTDecks.getSelectedIndex();
-        if (listSelection >= 0)
-        {
-            deckFileName = deckModel.get(listSelection);
-            deckFileName = deckFileName.trim();
-        }
+    if (deckFileName.length() <= 0)
+    {
+        JOptionPane.showMessageDialog(null,
+                "Select a Deck File",
+                "Message",
+                JOptionPane.ERROR_MESSAGE);
+        return;
+    }
+    else
+    {
+        // set absolute path and file name to the desktop directory
+        String userDesktopPath = System.getProperty("user.home") + "/Desktop/";
+        deckFileName = userDesktopPath + deckFileName;
+    }
 
-        if (deckFileName.length() <= 0)
-        {
-            JOptionPane.showMessageDialog(null,
-                    "Select a Deck File",
-                    "Message",
-                    JOptionPane.ERROR_MESSAGE);
-            return;
+    try
+    {
+        File inputFile = new File(deckFileName);
+
+        if (inputFile.exists()) {
+            FileInputStream in = new FileInputStream(inputFile);
+            byte bt[] = new byte[(int)inputFile.length()];
+            in.read(bt);
+            data1 = new String(bt);
+            in.close();
         }
         else
         {
-            // set absolute path and file name (Store the text file in the App directory)
-            deckPathAndFileName = "/home/josue/Downloads/" + deckFileName;
-        }
-
-        try
-        {
-            File inputFile = new File(deckPathAndFileName);
-
-            if (inputFile.exists()) {
-                FileInputStream in = new FileInputStream(inputFile);
-                byte bt[] = new byte[(int)inputFile.length()];
-                in.read(bt);
-                data1 = new String(bt);
-                in.close();
-            }
-            else
-            {
-                JOptionPane.showMessageDialog(null,
-                        "File " + deckFileName +
-                                " Not found.",
-                        "Message",
-                        JOptionPane.ERROR_MESSAGE);
-                return;
-            }
-        }
-        catch(java.io.IOException e1)
-        {
             JOptionPane.showMessageDialog(null,
-                    "Failed to open and read file " + deckFileName +
-                            e1.toString(),
+                    "File " + deckFileName +
+                            " Not found.",
                     "Message",
                     JOptionPane.ERROR_MESSAGE);
             return;
         }
+    }
+    catch(java.io.IOException e1)
+    {
+        JOptionPane.showMessageDialog(null,
+                "Failed to open and read file " + deckFileName +
+                        e1.toString(),
+                "Message",
+                JOptionPane.ERROR_MESSAGE);
+        return;
+    }
 
-        // if file found and read, load data
-        String listEntry = "";
-        int overWrite = -1;
-        int dataSize = data1.length();
+    // if file found and read, load data
+    int dataSize = data1.length();
+    if (dataSize > 0)
+    {
+        int overWrite = JOptionPane.showConfirmDialog(null,
+                "Load File " + deckFileName + " contents ?",
+                "Message",
+                JOptionPane.YES_NO_OPTION);
 
-        if (dataSize > 0)
+        // Do not load
+        if (overWrite == JOptionPane.NO_OPTION)
         {
-            overWrite = JOptionPane.showConfirmDialog(null,
-                    "Load File " + deckFileName + " contents ?",
-                    "Message",
-                    JOptionPane.YES_NO_OPTION);
+            return;
+        }
 
-            // Do not load
-            if (overWrite == 1)
+        // clear existing values from components
+        questionList.clear();
+        answerList.clear();
+        randList.clear();
+        int CardsCount = 0;
+        int CurrentCard = 0;
+
+        // load data into components
+        String ans = "";
+        String qes = "";
+        boolean dataFlag = false;
+        for (int i = 0; i < dataSize; i++)
+        {
+            char c1 = data1.charAt(i);
+
+            if (dataFlag)
             {
-                return;
+                if (c1 == '\n') // Assuming newLine is '\n'
+                {
+                    // Add Question and Answer to the lists
+                    questionList.add(qes);
+                    answerList.add(ans);
+                    randList.add(CardsCount);
+                    CardsCount++;
+
+                    // reset vars
+                    ans = "";
+                    qes = "";
+                    dataFlag = false;
+                    continue;
+                }
+                qes += c1;
             }
-
-            // clear existing values from components
-            questionList.clear();
-            answerList.clear();
-            randList.clear();
-            CardsCount = 0;
-            CurrentCard = 0;
-
-            // load data into components
-            String ans = "";
-            String qes = "";
-            char c1 = 0;
-            boolean dataFlag = false;
-
-            for (int i = 0; i < dataSize; i++)
+            else
             {
-                c1 = data1.charAt(i);
-
-                if (dataFlag)
+                if (c1 == '=') // Assuming dataSep is '='
                 {
-                    if (c1 == newLine)
-                    {
-                        // Add Question and Answer to the lists
-                        questionList.add(qes);
-                        answerList.add(ans);
-                        randList.add(CardsCount);
-                        CardsCount++;
-
-                        // reset vars
-                        ans = "";
-                        qes = "";
-                        dataFlag = false;
-                        continue;
-                    }
-                    qes = qes + c1;
+                    dataFlag = true;
+                    continue;
                 }
-                else
-                {
-                    if (c1 == dataSep)
-                    {
-                        dataFlag = true;
-                        continue;
-                    }
-                    ans = ans + c1;
-                }
+                ans += c1;
             }
-        } // if (dataSize > 0)
+        }
 
         // Show Card
         JLBLHint.setText("");
-        answerCard = false;
+        boolean answerCard = false;
 
         // enable controls
         if (CardsCount > 0)
@@ -328,9 +326,11 @@ public class FlashCardPlayer extends JFrame
             JBTNRight.setEnabled(true);
             JBTNShuffle.setEnabled(true);
 
-            showCardInfo();
+            showCardInfo(); // Ensure this method properly handles showing the first or next card.
         }
-    } //  loadDeckFile(String pathAndfileName)
+    }
+}
+ //  loadDeckFile(String pathAndfileName)
 
     //// Action Listener for Loading the Deck file
     ActionListener alLoadDeck = new ActionListener() {
@@ -468,10 +468,10 @@ public class FlashCardPlayer extends JFrame
         //// for windows
         else if (OSName.startsWith("Win"))
         {
-            OSFs = "\\";
-            File fl1 = new File("");
-            appPath = fl1.getAbsolutePath();
+            OSFs = "\\";  // File separator for Windows, although you can also use File.separator for cross-platform compatibility
+            appPath = System.getProperty("user.home") + "\\Desktop\\";  // Directly setting the path to the Desktop
         }
+
         //// other OS
         else
         {
