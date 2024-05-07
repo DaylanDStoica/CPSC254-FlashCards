@@ -163,6 +163,21 @@ public class FlashCards extends JFrame
                                        JOptionPane.ERROR_MESSAGE);
 				return;
 			}
+			
+           		// Add to the database
+            		Connection conn = DatabaseConnector.getConnection();
+            		String sql = "INSERT INTO flashcards (question, answer) VALUES (?, ?);";
+            		try (PreparedStatement pstmt = conn.prepareStatement(sql)) {
+                		pstmt.setString(1, question);
+                		pstmt.setString(2, answer);
+                		int affectedRows = pstmt.executeUpdate();
+                		if (affectedRows > 0) {
+                    		System.out.println("Record added successfully to the database.");
+                		}
+            		} catch (SQLException ex) {
+                		ex.printStackTrace();
+            		}
+
 
 			// Add Question and Answer to the lists
 			questionList.add(question);
