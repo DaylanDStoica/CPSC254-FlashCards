@@ -33,10 +33,33 @@ import javax.swing.*;
 import javax.swing.border.*;
 import java.io.*;
 import java.util.ArrayList;
+import java.util.ArrayList;
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.PreparedStatement;
+import java.sql.SQLException;
 
 // Main Class file for FlashCards
 public class FlashCards extends JFrame 
 {
+	        private static class DatabaseConnector {
+            private static Connection conn = null;
+
+            public static Connection getConnection() {
+                if (conn == null) {
+                    try {
+                        String url = "jdbc:mysql://localhost:3306/FlashCards";
+                        String user = "FlashCards-Programmer";
+                        String password = "X$18joanri";
+                        conn = DriverManager.getConnection(url, user, password);
+                    } catch (SQLException e) {
+                        e.printStackTrace();
+                    }
+                }
+                return conn;
+            }
+        }
+
 	// To identify OS
 	static String OSName = System.getProperties().getProperty("os.name");
 	// To identify file separator for paths
