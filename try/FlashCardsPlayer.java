@@ -195,131 +195,127 @@ public void LoadAllDecks() {
     } // void showCardInfo()
 
     // To open and read a Deck file
-    void loadDeckFile()
+void loadDeckFile()
+{
+    int listSelection = -1;
+    String deckFileName = "";
+    String data1 = "";
+
+    listSelection = JLSTDecks.getSelectedIndex();
+    if (listSelection >= 0)
     {
-        int listSelection = -1;
-        String data1 = "";
+        deckFileName = deckModel.get(listSelection);
+        deckFileName = deckFileName.trim();
+    }
 
-        listSelection = JLSTDecks.getSelectedIndex();
-        if (listSelection >= 0)
-        {
-            deckFileName = deckModel.get(listSelection);
-            deckFileName = deckFileName.trim();
-        }
+    if (deckFileName.length() <= 0)
+    {
+        JOptionPane.showMessageDialog(null,
+                "Select a Deck File",
+                "Message",
+                JOptionPane.ERROR_MESSAGE);
+        return;
+    }
+    else
+    {
+        // set absolute path and file name to the desktop directory
+        String userDesktopPath = System.getProperty("user.home") + "/Desktop/";
+        deckFileName = userDesktopPath + deckFileName + ".txt";
+    }
 
-        if (deckFileName.length() <= 0)
-        {
-            JOptionPane.showMessageDialog(null,
-                    "Select a Deck File",
-                    "Message",
-                    JOptionPane.ERROR_MESSAGE);
-            return;
+    try
+    {
+        File inputFile = new File(deckFileName);
+
+        if (inputFile.exists()) {
+            FileInputStream in = new FileInputStream(inputFile);
+            byte bt[] = new byte[(int)inputFile.length()];
+            in.read(bt);
+            data1 = new String(bt);
+            in.close();
         }
         else
         {
-            // set absolute path and file name (Store the text file in the App directory)
-            deckPathAndFileName = "/home/josue/Downloads/" + deckFileName;
-        }
-
-        try
-        {
-            File inputFile = new File(deckPathAndFileName);
-
-            if (inputFile.exists()) {
-                FileInputStream in = new FileInputStream(inputFile);
-                byte bt[] = new byte[(int)inputFile.length()];
-                in.read(bt);
-                data1 = new String(bt);
-                in.close();
-            }
-            else
-            {
-                JOptionPane.showMessageDialog(null,
-                        "File " + deckFileName +
-                                " Not found.",
-                        "Message",
-                        JOptionPane.ERROR_MESSAGE);
-                return;
-            }
-        }
-        catch(java.io.IOException e1)
-        {
             JOptionPane.showMessageDialog(null,
-                    "Failed to open and read file " + deckFileName +
-                            e1.toString(),
+                    "File " + deckFileName +
+                            " Not found.",
                     "Message",
                     JOptionPane.ERROR_MESSAGE);
             return;
         }
+    }
+    catch(java.io.IOException e1)
+    {
+        JOptionPane.showMessageDialog(null,
+                "Failed to open and read file " + deckFileName +
+                        e1.toString(),
+                "Message",
+                JOptionPane.ERROR_MESSAGE);
+        return;
+    }
 
-        // if file found and read, load data
-        String listEntry = "";
-        int overWrite = -1;
-        int dataSize = data1.length();
+    // if file found and read, load data
+    int dataSize = data1.length();
+    if (dataSize > 0)
+    {
+        int overWrite = JOptionPane.showConfirmDialog(null,
+                "Load File " + deckFileName + " contents ?",
+                "Message",
+                JOptionPane.YES_NO_OPTION);
 
-        if (dataSize > 0)
+        // Do not load
+        if (overWrite == JOptionPane.NO_OPTION)
         {
-            overWrite = JOptionPane.showConfirmDialog(null,
-                    "Load File " + deckFileName + " contents ?",
-                    "Message",
-                    JOptionPane.YES_NO_OPTION);
+            return;
+        }
 
-            // Do not load
-            if (overWrite == 1)
+        // clear existing values from components
+        questionList.clear();
+        answerList.clear();
+        randList.clear();
+        int CardsCount = 0;
+        int CurrentCard = 0;
+
+        // load data into components
+        String ans = "";
+        String qes = "";
+        boolean dataFlag = false;
+        for (int i = 0; i < dataSize; i++)
+        {
+            char c1 = data1.charAt(i);
+
+            if (dataFlag)
             {
-                return;
+                if (c1 == '\n') // Assuming newLine is '\n'
+                {
+                    // Add Question and Answer to the lists
+                    questionList.add(qes);
+                    answerList.add(ans);
+                    randList.add(CardsCount);
+                    CardsCount++;
+
+                    // reset vars
+                    ans = "";
+                    qes = "";
+                    dataFlag = false;
+                    continue;
+                }
+                qes += c1;
             }
-
-            // clear existing values from components
-            questionList.clear();
-            answerList.clear();
-            randList.clear();
-            CardsCount = 0;
-            CurrentCard = 0;
-
-            // load data into components
-            String ans = "";
-            String qes = "";
-            char c1 = 0;
-            boolean dataFlag = false;
-
-            for (int i = 0; i < dataSize; i++)
+            else
             {
-                c1 = data1.charAt(i);
-
-                if (dataFlag)
+                if (c1 == '=') // Assuming dataSep is '='
                 {
-                    if (c1 == newLine)
-                    {
-                        // Add Question and Answer to the lists
-                        questionList.add(qes);
-                        answerList.add(ans);
-                        randList.add(CardsCount);
-                        CardsCount++;
-
-                        // reset vars
-                        ans = "";
-                        qes = "";
-                        dataFlag = false;
-                        continue;
-                    }
-                    qes = qes + c1;
+                    dataFlag = true;
+                    continue;
                 }
-                else
-                {
-                    if (c1 == dataSep)
-                    {
-                        dataFlag = true;
-                        continue;
-                    }
-                    ans = ans + c1;
-                }
+                ans += c1;
             }
-        } // if (dataSize > 0)
+        }
 
         // Show Card
         JLBLHint.setText("");
-        answerCard = false;
+        boolean answerCard = false;
 
         // enable controls
         if (CardsCount > 0)
@@ -330,9 +326,11 @@ public void LoadAllDecks() {
             JBTNRight.setEnabled(true);
             JBTNShuffle.setEnabled(true);
 
-            showCardInfo();
+            showCardInfo(); // Ensure this method properly handles showing the first or next card.
         }
-    } //  loadDeckFile(String pathAndfileName)
+    }
+}
+ //  loadDeckFile(String pathAndfileName)
 
     //// Action Listener for Loading the Deck file
     ActionListener alLoadDeck = new ActionListener() {
