@@ -124,16 +124,16 @@ public class FlashCardPlayer extends JFrame
         }
     };
 
-    //// Function to load all Deck Files (*.txt) from the App directory
+    //// Function to load all Deck Files (*) from the App directory
 public void LoadAllDecks() {
     // Get the user's home directory and append the Desktop path
     String userHome = System.getProperty("user.home");
     String appPath = userHome + File.separator + "Desktop";
 
-    // File extension filter to select only .txt files
+    // File extension filter to select only  files
     FilenameFilter ff = new FilenameFilter() {
         public boolean accept(File dir, String name) {
-            return name.toLowerCase().endsWith(".txt");
+            return name.toLowerCase().endsWith("");
         }
     };
 
@@ -220,7 +220,7 @@ void loadDeckFile()
     {
         // set absolute path and file name to the desktop directory
         String userDesktopPath = System.getProperty("user.home") + "/Desktop/";
-        deckFileName = userDesktopPath + deckFileName + ".txt";
+        deckFileName = userDesktopPath + deckFileName;
     }
 
     try
