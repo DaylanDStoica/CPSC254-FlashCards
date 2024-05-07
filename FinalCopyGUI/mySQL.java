@@ -263,94 +263,79 @@ public class FlashCards extends JFrame
     };
 
     //// Function to save the Deck entries to a Text file
-    void saveDeckToFile()
-    {
-        String fileContent = "";
-        int lSize = 0;
-        String s1 = "";
-        String s2 = "";
-        String deckFileName = "";
+void saveDeckToFile() {
+    String fileContent = "";
+    int lSize = 0;
+    String s1 = "";
+    String s2 = "";
+    String deckFileName = "";
 
-        deckFileName = JTXFDeckID.getText();
-        if (deckFileName.length() <= 0)
-        {
-            JOptionPane.showMessageDialog(null,
-                    "Invalid Deck ID",
-                    "Message",
-                    JOptionPane.ERROR_MESSAGE);
+    deckFileName = JTXFDeckID.getText();
+    if (deckFileName.length() <= 0) {
+        JOptionPane.showMessageDialog(null,
+                "Invalid Deck ID",
+                "Message",
+                JOptionPane.ERROR_MESSAGE);
+        return;
+    } else {
+        // set absolute path to user's desktop
+        String userDesktopPath = System.getProperty("user.home") + File.separator + "Desktop";
+        deckFileName = userDesktopPath + File.separator + deckFileName + ".txt";
+    }
+
+    // Verify if the file already exists or not
+    File fl1 = new File(deckFileName);
+    boolean fileExist = false;
+    try {
+        fileExist = fl1.exists();
+    } catch (SecurityException e) {
+        fileExist = false;
+    }
+
+    // if file exists ask permission to overwrite it
+    if (fileExist) {
+        int overWrite = JOptionPane.showConfirmDialog(null,
+                "File " + deckFileName + " already Exists. Overwrite it ?",
+                "Message",
+                JOptionPane.YES_NO_OPTION);
+
+        // Do not overwrite
+        if (overWrite == JOptionPane.NO_OPTION) {
             return;
         }
-        else
-        {
-            // set absolute path and file name (Store the text file in the App directory)
-            deckFileName = "/home/josue/Downloads/" + deckFileName + ".txt";
-        }
+    }
 
-        // Verify if the file already exists or not
-        File fl1 = new File(deckFileName);
-        boolean fileExist = false;
-        try
-        {
-            fileExist = fl1.exists();
-        }
-        catch (SecurityException e)
-        {
-            fileExist = false;
-        }
+    // Get the List size
+    lSize = answerList.size();
 
-        // if file exists ask permission to overwrite it
-        if (fileExist)
-        {
-            int overWrite = -1;
+    // get entries from the List
+    for (int i = 0; i < lSize; i++) {
+        s1 = answerList.get(i);
+        s2 = questionList.get(i);
+        fileContent += s1 + "=" + s2 + "\n";
+    }
 
-            overWrite = JOptionPane.showConfirmDialog(null,
-                    "File " + deckFileName + " already Exists." + " Overwrite it ?",
-                    "Message",
-                    JOptionPane.YES_NO_OPTION);
+    // Save the entries
+    if (fileContent.length() > 0) {
+        byte[] b = fileContent.getBytes();
 
-            // Do not overwrite
-            if (overWrite == 1)
-            {
-                return;
-            }
-        }
-
-        // Get the List size
-        lSize = answerList.size();
-
-        // get entries from the List
-        for (int i = 0; i < lSize; i++)
-        {
-            s1 = answerList.get(i);
-            s2 = questionList.get(i);
-            fileContent += s1 + "=" + s2 + "\n";
-        }
-
-        // Save the entries
-        if (fileContent.length() > 0)
-        {
-            byte b[] = fileContent.getBytes();
-
-            try
-            {
-                FileOutputStream out = new FileOutputStream(deckFileName);
-                out.write(b);
-                out.close();
-            }
-            catch(java.io.IOException e1)
-            {
-                JOptionPane.showMessageDialog(null,
-                        "Could Not save the Deck. " + e1.toString(),
-                        "Message",
-                        JOptionPane.ERROR_MESSAGE);
-                return;
-            }
+        try {
+            FileOutputStream out = new FileOutputStream(deckFileName);
+            out.write(b);
+            out.close();
             JOptionPane.showMessageDialog(null,
                     "Flash Cards Deck Saved. File Name: " + deckFileName,
                     "Message",
                     JOptionPane.INFORMATION_MESSAGE);
+        } catch (java.io.IOException e1) {
+            JOptionPane.showMessageDialog(null,
+                    "Could Not save the Deck. " + e1.toString(),
+                    "Message",
+                    JOptionPane.ERROR_MESSAGE);
         }
-    }    // saveDeckToFile()
+    }
+}
+    // saveDeckToFile()
 
     //// Action Listener for Saving the Deck of Cards
     ActionListener alSaveDeck = new ActionListener() {
